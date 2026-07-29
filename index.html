@@ -1,83 +1,76 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="utf-8">
-  <title>Runtime Test</title>
+<meta charset="utf-8">
+<title>Quick Notes</title>
 </head>
-<body style="font-family:Arial,sans-serif;padding:24px;background:#f5f5f5;">
 
-  <h2>TooSimple Runtime Test</h2>
+<body style="font-family:Arial,sans-serif;background:#fafafa;padding:24px;max-width:700px;margin:auto;">
 
-  <div style="background:white;padding:16px;border-radius:8px;margin-bottom:20px;">
-    <p><strong>Operating System:</strong> <span id="os">Loading...</span></p>
-    <p><strong>Runtime:</strong> <span id="runtime">Loading...</span></p>
-    <button id="refresh">Refresh Info</button>
-  </div>
+<h2>📝 Quick Notes</h2>
+<p>Your notes are automatically saved on this device.</p>
 
-  <div style="background:white;padding:16px;border-radius:8px;margin-bottom:20px;">
-    <h3>Dialogs</h3>
-    <button id="hello">Show Greeting</button>
-    <button id="question">Ask Question</button>
-    <p id="answer">Waiting...</p>
-  </div>
+<textarea id="notes"
+style="width:100%;height:220px;padding:12px;font-size:15px;box-sizing:border-box;"
+placeholder="Write anything..."></textarea>
 
-  <div style="background:white;padding:16px;border-radius:8px;">
-    <h3>Persistent Click Count</h3>
-    <p>You have pressed the button <b id="clicks">0</b> times.</p>
-    <button id="countBtn">Click Me</button>
-    <button id="resetBtn">Reset Counter</button>
-  </div>
+<br><br>
 
-  <script>
-    async function updateRuntime() {
-      document.getElementById("os").textContent =
-        await TS.platform.getPlatform();
+<button id="saveBtn">💾 Save</button>
+<button id="clearBtn">🗑 Clear</button>
 
-      document.getElementById("runtime").textContent =
-        await TS.platform.getRuntimeVersion();
-    }
+<p id="status" style="color:#666;margin-top:15px;"></p>
 
-    async function updateCounter() {
-      const count = (await TS.storage.get("clickCount")) || 0;
-      document.getElementById("clicks").textContent = count;
-    }
+<script>
+const STORAGE_KEY = "quickNotes";
 
-    window.addEventListener("ts-ready", async () => {
-      await updateRuntime();
-      await updateCounter();
+window.addEventListener("ts-ready", async () => {
+    const saved = await TS.storage.get(STORAGE_KEY);
+
+    if (saved)
+        document.getElementById("notes").value = saved;
+
+    updateStatus();
+});
+
+function updateStatus() {
+    document.getElementById("status").textContent =
+        "Last updated: " + new Date().toLocaleTimeString();
+}
+
+document.getElementById("saveBtn").addEventListener("click", async () => {
+
+    const text = document.getElementById("notes").value;
+
+    await TS.storage.set(STORAGE_KEY, text);
+
+    updateStatus();
+
+    await TS.dialog.alert({
+        title: "Saved",
+        message: "Your notes have been saved."
     });
 
-    document.getElementById("refresh").onclick = updateRuntime;
+});
 
-    document.getElementById("hello").onclick = async () => {
-      await TS.dialog.alert({
-        title: "Runtime Test",
-        message: "Everything seems to be working!"
-      });
-    };
+document.getElementById("clearBtn").addEventListener("click", async () => {
 
-    document.getElementById("question").onclick = async () => {
-      const result = await TS.dialog.confirm({
-        title: "Question",
-        message: "Would you like to continue testing?"
-      });
+    const ok = await TS.dialog.confirm({
+        title: "Clear Notes",
+        message: "Delete all saved notes?"
+    });
 
-      document.getElementById("answer").textContent =
-        result ? "User selected YES" : "User selected NO";
-    };
+    if (!ok)
+        return;
 
-    document.getElementById("countBtn").onclick = async () => {
-      let count = (await TS.storage.get("clickCount")) || 0;
-      count++;
-      await TS.storage.set("clickCount", count);
-      document.getElementById("clicks").textContent = count;
-    };
+    await TS.storage.set(STORAGE_KEY, "");
 
-    document.getElementById("resetBtn").onclick = async () => {
-      await TS.storage.set("clickCount", 0);
-      document.getElementById("clicks").textContent = 0;
-    };
-  </script>
+    document.getElementById("notes").value = "";
+
+    updateStatus();
+
+});
+</script>
 
 </body>
 </html>
