@@ -1,5 +1,5 @@
 {
-  "id": "com.toosimple.hello",
+  "id": "com.toosimple.secondtest",
   "name": "Hello Block",
   "version": "1.0.0",
   "description": "Demonstrates the TS Bridge: platform info, native dialogs and persistent storage.",
