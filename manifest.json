@@ -1,10 +1,10 @@
 {
-  "id": "com.testing.secondtest",
-  "name": "Hello Block",
+  "id": "com.what.manfak",
+  "name": "Blyet Block",
   "version": "1.0.0",
-  "description": "Demonstrates the TS Bridge: platform info, native dialogs and persistent storage.",
+  "description": "Demonstrates shit",
   "developer": {
-    "name": "TooSimple Samples"
+    "name": "vladimir"
   },
   "runtime": {
     "minVersion": "0.1.0"
