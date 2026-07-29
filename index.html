@@ -2,74 +2,186 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>Quick Notes</title>
-</head>
+<title>Time Capsule</title>
 
-<body style="font-family:Arial,sans-serif;background:#fafafa;padding:24px;max-width:700px;margin:auto;">
-
-<h2>📝 Quick Notes</h2>
-<p>Your notes are automatically saved on this device.</p>
-
-<textarea id="notes"
-style="width:100%;height:220px;padding:12px;font-size:15px;box-sizing:border-box;"
-placeholder="Write anything..."></textarea>
-
-<br><br>
-
-<button id="saveBtn">💾 Save</button>
-<button id="clearBtn">🗑 Clear</button>
-
-<p id="status" style="color:#666;margin-top:15px;"></p>
-
-<script>
-const STORAGE_KEY = "quickNotes";
-
-window.addEventListener("ts-ready", async () => {
-    const saved = await TS.storage.get(STORAGE_KEY);
-
-    if (saved)
-        document.getElementById("notes").value = saved;
-
-    updateStatus();
-});
-
-function updateStatus() {
-    document.getElementById("status").textContent =
-        "Last updated: " + new Date().toLocaleTimeString();
+<style>
+body{
+    font-family:Arial,sans-serif;
+    background:#f4f4f4;
+    margin:0;
+    padding:24px;
 }
 
-document.getElementById("saveBtn").addEventListener("click", async () => {
+.card{
+    max-width:700px;
+    margin:auto;
+    background:white;
+    padding:24px;
+    border-radius:10px;
+    box-shadow:0 2px 8px rgba(0,0,0,.08);
+}
 
-    const text = document.getElementById("notes").value;
+textarea{
+    width:100%;
+    height:180px;
+    box-sizing:border-box;
+    padding:12px;
+    font-size:15px;
+    resize:vertical;
+}
 
-    await TS.storage.set(STORAGE_KEY, text);
+button{
+    padding:10px 18px;
+    margin-right:10px;
+    margin-top:12px;
+    cursor:pointer;
+}
 
-    updateStatus();
+small{
+    color:#666;
+}
+
+#reminder{
+    margin-top:24px;
+    padding:16px;
+    background:#fafafa;
+    border-left:4px solid #4CAF50;
+    white-space:pre-wrap;
+}
+
+.hidden{
+    display:none;
+}
+</style>
+</head>
+
+<body>
+
+<div class="card">
+
+<h2>📦 Time Capsule</h2>
+<p>Leave a message for your future self.</p>
+
+<textarea id="message"
+placeholder="Write something you'd like to remember..."></textarea>
+
+<br>
+
+<button id="saveBtn">💾 Save</button>
+<button id="deleteBtn">🗑 Delete</button>
+
+<p>
+<small id="savedInfo">Nothing saved yet.</small>
+</p>
+
+<div id="reminder" class="hidden">
+<h3>Your Reminder</h3>
+<p id="reminderText"></p>
+<p><small id="age"></small></p>
+</div>
+
+</div>
+
+<script>
+
+const MESSAGE_KEY = "capsule.message";
+const TIME_KEY = "capsule.savedAt";
+
+function formatAge(savedAt){
+
+    const diff = Date.now() - savedAt;
+
+    const minutes = Math.floor(diff / 60000);
+    const hours = Math.floor(diff / 3600000);
+    const days = Math.floor(diff / 86400000);
+
+    if(days > 0)
+        return days + (days === 1 ? " day ago" : " days ago");
+
+    if(hours > 0)
+        return hours + (hours === 1 ? " hour ago" : " hours ago");
+
+    return minutes + (minutes === 1 ? " minute ago" : " minutes ago");
+}
+
+async function loadCapsule(){
+
+    const message = await TS.storage.get(MESSAGE_KEY);
+    const savedAt = await TS.storage.get(TIME_KEY);
+
+    if(message){
+
+        document.getElementById("message").value = message;
+        document.getElementById("reminderText").textContent = message;
+
+        document.getElementById("reminder").classList.remove("hidden");
+
+        if(savedAt){
+
+            const date = new Date(savedAt);
+
+            document.getElementById("savedInfo").textContent =
+                "Saved: " + date.toLocaleString();
+
+            document.getElementById("age").textContent =
+                "Saved " + formatAge(savedAt);
+
+        }
+
+    }
+
+}
+
+window.addEventListener("ts-ready", loadCapsule);
+
+document.getElementById("saveBtn").addEventListener("click", async ()=>{
+
+    const text = document.getElementById("message").value.trim();
+
+    if(text.length === 0){
+
+        await TS.dialog.alert({
+            title:"Nothing to Save",
+            message:"Please write a message first."
+        });
+
+        return;
+    }
+
+    const now = Date.now();
+
+    await TS.storage.set(MESSAGE_KEY, text);
+    await TS.storage.set(TIME_KEY, now);
+
+    await loadCapsule();
 
     await TS.dialog.alert({
-        title: "Saved",
-        message: "Your notes have been saved."
+        title:"Time Capsule",
+        message:"Your message has been safely stored."
     });
 
 });
 
-document.getElementById("clearBtn").addEventListener("click", async () => {
+document.getElementById("deleteBtn").addEventListener("click", async ()=>{
 
     const ok = await TS.dialog.confirm({
-        title: "Clear Notes",
-        message: "Delete all saved notes?"
+        title:"Delete Message",
+        message:"Delete your saved message?"
     });
 
-    if (!ok)
+    if(!ok)
         return;
 
-    await TS.storage.set(STORAGE_KEY, "");
+    await TS.storage.set(MESSAGE_KEY, "");
+    await TS.storage.set(TIME_KEY, "");
 
-    document.getElementById("notes").value = "";
+    document.getElementById("message").value = "";
+    document.getElementById("savedInfo").textContent = "Nothing saved yet.";
 
-    updateStatus();
+    document.getElementById("reminder").classList.add("hidden");
 
 });
+
 </script>
 
 </body>
