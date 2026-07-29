@@ -1,186 +1,355 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta charset="utf-8">
-<title>Time Capsule</title>
+<meta charset="UTF-8">
+<title>Time Capsules</title>
 
 <style>
+*{
+    box-sizing:border-box;
+}
+
 body{
-    font-family:Arial,sans-serif;
-    background:#f4f4f4;
     margin:0;
     padding:24px;
+    font-family:Arial,sans-serif;
+    background:#f3f4f6;
+}
+
+.container{
+    max-width:900px;
+    margin:auto;
 }
 
 .card{
-    max-width:700px;
-    margin:auto;
     background:white;
-    padding:24px;
     border-radius:10px;
+    padding:20px;
+    margin-bottom:20px;
     box-shadow:0 2px 8px rgba(0,0,0,.08);
 }
 
-textarea{
+h1,h2{
+    margin-top:0;
+}
+
+input,textarea{
     width:100%;
-    height:180px;
-    box-sizing:border-box;
-    padding:12px;
+    padding:10px;
+    margin-top:8px;
+    margin-bottom:16px;
     font-size:15px;
+}
+
+textarea{
+    min-height:160px;
     resize:vertical;
 }
 
 button{
     padding:10px 18px;
     margin-right:10px;
-    margin-top:12px;
     cursor:pointer;
 }
 
-small{
-    color:#666;
+.capsule{
+    border:1px solid #ddd;
+    border-radius:8px;
+    padding:14px;
+    margin-top:12px;
+    cursor:pointer;
+    transition:.15s;
 }
 
-#reminder{
-    margin-top:24px;
-    padding:16px;
-    background:#fafafa;
-    border-left:4px solid #4CAF50;
-    white-space:pre-wrap;
+.capsule:hover{
+    background:#f8f8f8;
+}
+
+.date{
+    color:#666;
+    font-size:13px;
 }
 
 .hidden{
     display:none;
+}
+
+.empty{
+    color:#888;
+    text-align:center;
+    padding:30px;
 }
 </style>
 </head>
 
 <body>
 
+<div class="container">
+
 <div class="card">
 
-<h2>📦 Time Capsule</h2>
-<p>Leave a message for your future self.</p>
+<h1>📦 Time Capsules</h1>
 
-<textarea id="message"
-placeholder="Write something you'd like to remember..."></textarea>
+<button id="newBtn">+ New Capsule</button>
 
-<br>
+<div id="list"></div>
+
+</div>
+
+<div id="editor" class="card hidden">
+
+<h2 id="editorTitle">New Capsule</h2>
+
+<label>Title</label>
+<input id="title">
+
+<label>Message</label>
+<textarea id="message"></textarea>
 
 <button id="saveBtn">💾 Save</button>
 <button id="deleteBtn">🗑 Delete</button>
+<button id="cancelBtn">Cancel</button>
 
-<p>
-<small id="savedInfo">Nothing saved yet.</small>
-</p>
-
-<div id="reminder" class="hidden">
-<h3>Your Reminder</h3>
-<p id="reminderText"></p>
-<p><small id="age"></small></p>
 </div>
 
 </div>
 
 <script>
 
-const MESSAGE_KEY = "capsule.message";
-const TIME_KEY = "capsule.savedAt";
+const STORAGE_KEY = "timeCapsules";
 
-function formatAge(savedAt){
+let capsules = [];
+let editingId = null;
 
-    const diff = Date.now() - savedAt;
+async function loadStorage(){
 
-    const minutes = Math.floor(diff / 60000);
-    const hours = Math.floor(diff / 3600000);
-    const days = Math.floor(diff / 86400000);
+    const raw = await TS.storage.get(STORAGE_KEY);
 
-    if(days > 0)
-        return days + (days === 1 ? " day ago" : " days ago");
+    if(raw){
 
-    if(hours > 0)
-        return hours + (hours === 1 ? " hour ago" : " hours ago");
-
-    return minutes + (minutes === 1 ? " minute ago" : " minutes ago");
-}
-
-async function loadCapsule(){
-
-    const message = await TS.storage.get(MESSAGE_KEY);
-    const savedAt = await TS.storage.get(TIME_KEY);
-
-    if(message){
-
-        document.getElementById("message").value = message;
-        document.getElementById("reminderText").textContent = message;
-
-        document.getElementById("reminder").classList.remove("hidden");
-
-        if(savedAt){
-
-            const date = new Date(savedAt);
-
-            document.getElementById("savedInfo").textContent =
-                "Saved: " + date.toLocaleString();
-
-            document.getElementById("age").textContent =
-                "Saved " + formatAge(savedAt);
-
+        try{
+            capsules = JSON.parse(raw);
+        }catch{
+            capsules = [];
         }
 
+    }else{
+        capsules = [];
     }
 
 }
 
-window.addEventListener("ts-ready", loadCapsule);
+async function saveStorage(){
 
-document.getElementById("saveBtn").addEventListener("click", async ()=>{
+    await TS.storage.set(
+        STORAGE_KEY,
+        JSON.stringify(capsules)
+    );
 
-    const text = document.getElementById("message").value.trim();
+}
 
-    if(text.length === 0){
+function formatDate(time){
+
+    return new Date(time).toLocaleString();
+
+}
+
+function renderList(){
+
+    const list = document.getElementById("list");
+
+    list.innerHTML = "";
+
+    if(capsules.length===0){
+
+        list.innerHTML =
+            '<div class="empty">No capsules yet.</div>';
+
+        return;
+
+    }
+
+    capsules
+        .sort((a,b)=>b.createdAt-a.createdAt)
+        .forEach(c=>{
+
+            const div=document.createElement("div");
+
+            div.className="capsule";
+
+            div.innerHTML=`
+                <strong>${escapeHtml(c.title)}</strong>
+                <div class="date">${formatDate(c.createdAt)}</div>
+                <p>${escapeHtml(c.message.substring(0,120))}${c.message.length>120?"...":""}</p>
+            `;
+
+            div.onclick=()=>openCapsule(c.id);
+
+            list.appendChild(div);
+
+        });
+
+}
+
+function escapeHtml(text){
+
+    return text
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;");
+
+}
+
+function showEditor(show){
+
+    document
+        .getElementById("editor")
+        .classList
+        .toggle("hidden",!show);
+
+}
+
+function newCapsule(){
+
+    editingId=null;
+
+    document.getElementById("editorTitle").textContent="New Capsule";
+
+    document.getElementById("title").value="";
+    document.getElementById("message").value="";
+
+    showEditor(true);
+
+}
+
+function openCapsule(id){
+
+    const c=capsules.find(x=>x.id===id);
+
+    if(!c)return;
+
+    editingId=id;
+
+    document.getElementById("editorTitle").textContent="Edit Capsule";
+
+    document.getElementById("title").value=c.title;
+    document.getElementById("message").value=c.message;
+
+    showEditor(true);
+
+}
+
+async function saveCapsule(){
+
+    const title=document.getElementById("title").value.trim();
+    const message=document.getElementById("message").value.trim();
+
+    if(!title){
 
         await TS.dialog.alert({
-            title:"Nothing to Save",
-            message:"Please write a message first."
+            title:"Missing Title",
+            message:"Please enter a title."
         });
 
         return;
+
     }
 
-    const now = Date.now();
+    if(!message){
 
-    await TS.storage.set(MESSAGE_KEY, text);
-    await TS.storage.set(TIME_KEY, now);
+        await TS.dialog.alert({
+            title:"Missing Message",
+            message:"Please write something."
+        });
 
-    await loadCapsule();
-
-    await TS.dialog.alert({
-        title:"Time Capsule",
-        message:"Your message has been safely stored."
-    });
-
-});
-
-document.getElementById("deleteBtn").addEventListener("click", async ()=>{
-
-    const ok = await TS.dialog.confirm({
-        title:"Delete Message",
-        message:"Delete your saved message?"
-    });
-
-    if(!ok)
         return;
 
-    await TS.storage.set(MESSAGE_KEY, "");
-    await TS.storage.set(TIME_KEY, "");
+    }
 
-    document.getElementById("message").value = "";
-    document.getElementById("savedInfo").textContent = "Nothing saved yet.";
+    if(editingId===null){
 
-    document.getElementById("reminder").classList.add("hidden");
+        capsules.push({
+
+            id:Date.now(),
+
+            title,
+
+            message,
+
+            createdAt:Date.now()
+
+        });
+
+    }else{
+
+        const c=capsules.find(x=>x.id===editingId);
+
+        c.title=title;
+        c.message=message;
+
+    }
+
+    await saveStorage();
+
+    renderList();
+
+    showEditor(false);
+
+    await TS.dialog.alert({
+
+        title:"Saved",
+
+        message:"Capsule saved successfully."
+
+    });
+
+}
+
+async function deleteCapsule(){
+
+    if(editingId===null){
+
+        showEditor(false);
+
+        return;
+
+    }
+
+    const ok=await TS.dialog.confirm({
+
+        title:"Delete Capsule",
+
+        message:"Delete this capsule?"
+
+    });
+
+    if(!ok)return;
+
+    capsules=capsules.filter(c=>c.id!==editingId);
+
+    await saveStorage();
+
+    renderList();
+
+    showEditor(false);
+
+}
+
+window.addEventListener("ts-ready",async()=>{
+
+    await loadStorage();
+
+    renderList();
 
 });
+
+document.getElementById("newBtn").onclick=newCapsule;
+
+document.getElementById("saveBtn").onclick=saveCapsule;
+
+document.getElementById("deleteBtn").onclick=deleteCapsule;
+
+document.getElementById("cancelBtn").onclick=()=>showEditor(false);
 
 </script>
 
