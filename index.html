@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Runtime Test</title>
+</head>
+<body style="font-family:Arial,sans-serif;padding:24px;background:#f5f5f5;">
+
+  <h2>TooSimple Runtime Test</h2>
+
+  <div style="background:white;padding:16px;border-radius:8px;margin-bottom:20px;">
+    <p><strong>Operating System:</strong> <span id="os">Loading...</span></p>
+    <p><strong>Runtime:</strong> <span id="runtime">Loading...</span></p>
+    <button id="refresh">Refresh Info</button>
+  </div>
+
+  <div style="background:white;padding:16px;border-radius:8px;margin-bottom:20px;">
+    <h3>Dialogs</h3>
+    <button id="hello">Show Greeting</button>
+    <button id="question">Ask Question</button>
+    <p id="answer">Waiting...</p>
+  </div>
+
+  <div style="background:white;padding:16px;border-radius:8px;">
+    <h3>Persistent Click Count</h3>
+    <p>You have pressed the button <b id="clicks">0</b> times.</p>
+    <button id="countBtn">Click Me</button>
+    <button id="resetBtn">Reset Counter</button>
+  </div>
+
+  <script>
+    async function updateRuntime() {
+      document.getElementById("os").textContent =
+        await TS.platform.getPlatform();
+
+      document.getElementById("runtime").textContent =
+        await TS.platform.getRuntimeVersion();
+    }
+
+    async function updateCounter() {
+      const count = (await TS.storage.get("clickCount")) || 0;
+      document.getElementById("clicks").textContent = count;
+    }
+
+    window.addEventListener("ts-ready", async () => {
+      await updateRuntime();
+      await updateCounter();
+    });
+
+    document.getElementById("refresh").onclick = updateRuntime;
+
+    document.getElementById("hello").onclick = async () => {
+      await TS.dialog.alert({
+        title: "Runtime Test",
+        message: "Everything seems to be working!"
+      });
+    };
+
+    document.getElementById("question").onclick = async () => {
+      const result = await TS.dialog.confirm({
+        title: "Question",
+        message: "Would you like to continue testing?"
+      });
+
+      document.getElementById("answer").textContent =
+        result ? "User selected YES" : "User selected NO";
+    };
+
+    document.getElementById("countBtn").onclick = async () => {
+      let count = (await TS.storage.get("clickCount")) || 0;
+      count++;
+      await TS.storage.set("clickCount", count);
+      document.getElementById("clicks").textContent = count;
+    };
+
+    document.getElementById("resetBtn").onclick = async () => {
+      await TS.storage.set("clickCount", 0);
+      document.getElementById("clicks").textContent = 0;
+    };
+  </script>
+
+</body>
+</html>
