@@ -1,10 +1,10 @@
 {
-  "id": "com.another.aislop",
-  "name": "Notes Me",
-  "version": "1.0.0",
+  "id": "com.save.shit",
+  "name": "Save Messages",
+  "version": "6.7.67",
   "description": "Demonstrates shits",
   "developer": {
-    "name": "vladimir"
+    "name": "Triple T"
   },
   "runtime": {
     "minVersion": "0.1.0"
