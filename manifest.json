@@ -1,0 +1,16 @@
+{
+  "id": "com.toosimple.hello",
+  "name": "Hello Block",
+  "version": "1.0.0",
+  "description": "Demonstrates the TS Bridge: platform info, native dialogs and persistent storage.",
+  "developer": {
+    "name": "TooSimple Samples"
+  },
+  "runtime": {
+    "minVersion": "0.1.0"
+  },
+  "entry": {
+    "html": "index.html"
+  },
+  "permissions": []
+}
