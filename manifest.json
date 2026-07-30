@@ -1,7 +1,7 @@
 {
   "id": "ai.geoloc.firsttest",
   "name": "GPS Test",
-  "version": "99999",
+  "version": "67.67.67",
   "entry": { "html": "index.html" },
   "permissions": ["network"],
   "network": { "allowedDomains": ["api.github.com"] }
