@@ -1,17 +1,152 @@
 <!DOCTYPE html>
-<html>
-<body style="font-family:sans-serif;padding:24px;">
-  <button id="btn">Fetch</button>
-  <p id="result">-</p>
-  <script>
-    document.getElementById('btn').addEventListener('click', async () => {
-      try {
-        const res = await TS.http.get({ url: 'https://api.github.com/zen' });
-        document.getElementById('result').textContent = res.body;
-      } catch (e) {
-        document.getElementById('result').textContent = 'Error: ' + e.message;
-      }
-    });
-  </script>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Location Test</title>
+
+<style>
+body{
+    font-family: Arial, sans-serif;
+    padding:20px;
+    background:#f5f5f5;
+}
+
+button{
+    padding:10px 18px;
+    margin:5px;
+    cursor:pointer;
+}
+
+pre{
+    background:white;
+    border:1px solid #ccc;
+    padding:12px;
+    white-space:pre-wrap;
+    overflow:auto;
+}
+</style>
+</head>
+
+<body>
+
+<h2>Location API Test</h2>
+
+<button id="tsBtn">Test TS.location</button>
+<button id="jsBtn">Test navigator.geolocation</button>
+<button id="clearBtn">Clear</button>
+
+<pre id="output"></pre>
+
+<script>
+
+const output = document.getElementById("output");
+
+function log(msg){
+    output.textContent += msg + "\n";
+}
+
+function print(title,data){
+    log("==========");
+    log(title);
+    log(JSON.stringify(data,null,2));
+    log("");
+}
+
+//--------------------------------------------------
+// TooSimple API
+//--------------------------------------------------
+
+document.getElementById("tsBtn").onclick = async ()=>{
+
+    log("Calling TS.location...");
+
+    try{
+
+        if(typeof TS==="undefined"){
+            log("TS object not found.");
+            return;
+        }
+
+        if(!TS.location){
+            log("TS.location not found.");
+            return;
+        }
+
+        const permission =
+            await TS.location.getPermissionStatus();
+
+        print("Permission",permission);
+
+        const result =
+            await TS.location.getCurrentPosition();
+
+        print("Position",result);
+
+    }catch(e){
+        log(e.toString());
+    }
+
+};
+
+//--------------------------------------------------
+// Browser API
+//--------------------------------------------------
+
+document.getElementById("jsBtn").onclick = ()=>{
+
+    log("Calling navigator.geolocation...");
+
+    if(!navigator.geolocation){
+        log("navigator.geolocation NOT supported.");
+        return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+
+        position=>{
+
+            print("Navigator Position",{
+
+                latitude:position.coords.latitude,
+                longitude:position.coords.longitude,
+                accuracy:position.coords.accuracy,
+                altitude:position.coords.altitude,
+                speed:position.coords.speed,
+                heading:position.coords.heading,
+                timestamp:position.timestamp
+
+            });
+
+        },
+
+        error=>{
+
+            print("Navigator Error",{
+
+                code:error.code,
+                message:error.message
+
+            });
+
+        },
+
+        {
+
+            enableHighAccuracy:false,
+            timeout:15000,
+            maximumAge:0
+
+        }
+
+    );
+
+};
+
+document.getElementById("clearBtn").onclick=()=>{
+    output.textContent="";
+};
+
+</script>
+
 </body>
 </html>
