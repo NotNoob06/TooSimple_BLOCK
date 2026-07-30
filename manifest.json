@@ -3,6 +3,6 @@
   "name": "GPS Test",
   "version": "67.67.69",
   "entry": { "html": "index.html" },
-  "permissions": ["network"],
+  "permissions": ["network", "location"],
   "network": { "allowedDomains": ["api.github.com"] }
 }
