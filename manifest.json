@@ -1,16 +1,8 @@
 {
-  "id": "com.save.shit",
-  "name": "Save Messages",
-  "version": "6.7.67",
-  "description": "Demonstrates shits",
-  "developer": {
-    "name": "Triple T"
-  },
-  "runtime": {
-    "minVersion": "0.1.0"
-  },
-  "entry": {
-    "html": "index.html"
-  },
-  "permissions": []
+  "id": "com.example.httptest",
+  "name": "HTTP Test",
+  "version": "1.0.0",
+  "entry": { "html": "index.html" },
+  "permissions": ["network"],
+  "network": { "allowedDomains": ["api.github.com"] }
 }
