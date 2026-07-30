@@ -1,7 +1,7 @@
 {
-  "id": "com.example.httptest",
-  "name": "HTTP Test",
-  "version": "2.6.7",
+  "id": "ai.geoloc.firsttest",
+  "name": "GPS Test",
+  "version": "99999",
   "entry": { "html": "index.html" },
   "permissions": ["network"],
   "network": { "allowedDomains": ["api.github.com"] }
