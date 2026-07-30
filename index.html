@@ -79,11 +79,11 @@ document.getElementById("tsBtn").onclick = async ()=>{
 
         const result = await TS.location.getCurrentPosition();
         
-        console.log(result);
-        console.log(typeof result);
-        console.log(result.ok);
-        console.log(result.data);
-        console.log(JSON.stringify(result, null, 2));
+        print(result);
+        print(typeof result);
+        print(result.ok);
+        print(result.data);
+        print(JSON.stringify(result, null, 2));
 
     }catch(e){
         log(e.toString());
