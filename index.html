@@ -5,35 +5,37 @@
 <title>Location Test</title>
 
 <style>
-body{
+body {
     font-family: Arial, sans-serif;
-    padding:20px;
-    background:#f5f5f5;
+    padding: 20px;
+    background: #f4f4f4;
 }
 
-button{
-    padding:10px 18px;
-    margin:5px;
-    cursor:pointer;
+button {
+    padding: 10px 16px;
+    margin: 5px;
+    cursor: pointer;
 }
 
-pre{
-    background:white;
-    border:1px solid #ccc;
-    padding:12px;
-    white-space:pre-wrap;
-    overflow:auto;
+pre {
+    margin-top: 20px;
+    padding: 12px;
+    background: white;
+    border: 1px solid #ccc;
+    white-space: pre-wrap;
+    word-break: break-word;
+    min-height: 300px;
 }
 </style>
 </head>
 
 <body>
 
-<h2>Location API Test</h2>
+<h2>TooSimple Location Test</h2>
 
-<button id="tsBtn">Test TS.location</button>
-<button id="jsBtn">Test navigator.geolocation</button>
-<button id="clearBtn">Clear</button>
+<button onclick="testTS()">Test TS.location</button>
+<button onclick="testNavigator()">Test navigator.geolocation</button>
+<button onclick="clearOutput()">Clear</button>
 
 <pre id="output"></pre>
 
@@ -41,79 +43,127 @@ pre{
 
 const output = document.getElementById("output");
 
-function log(msg){
-    output.textContent += msg + "\n";
+function write(text){
+    output.textContent += text + "\n";
 }
 
-function print(title,data){
-    log("==========");
-    log(title);
-    log(JSON.stringify(data,null,2));
-    log("");
+function divider(title){
+    write("");
+    write("==================================================");
+    write(title);
+    write("==================================================");
 }
 
-//--------------------------------------------------
-// TooSimple API
-//--------------------------------------------------
+function inspect(name, obj){
 
-document.getElementById("tsBtn").onclick = async ()=>{
+    divider(name);
 
-    log("Calling TS.location...");
+    write("typeof:");
+    write(typeof obj);
+
+    write("");
+
+    write("String(obj):");
+    try{
+        write(String(obj));
+    }catch(e){
+        write("FAILED: " + e);
+    }
+
+    write("");
+
+    write("JSON.stringify:");
+    try{
+        write(JSON.stringify(obj,null,2));
+    }catch(e){
+        write("FAILED: " + e);
+    }
+
+    write("");
+
+    write("Keys:");
+    try{
+        write(JSON.stringify(Object.keys(obj),null,2));
+    }catch(e){
+        write("FAILED: " + e);
+    }
+
+    write("");
+
+    write("Raw object:");
+    try{
+        for(const key in obj){
+            write(key + " = " + JSON.stringify(obj[key]));
+        }
+    }catch(e){
+        write("FAILED: " + e);
+    }
+
+    write("");
+}
+
+function clearOutput(){
+    output.textContent="";
+}
+
+async function testTS(){
+
+    divider("Testing TS.location");
+
+    write("TS exists: " + (typeof TS));
+    write("TS.location exists: " + (TS && TS.location ? "YES" : "NO"));
 
     try{
 
-        if(typeof TS==="undefined"){
-            log("TS object not found.");
-            return;
-        }
-
-        if(!TS.location){
-            log("TS.location not found.");
-            return;
-        }
+        write("");
+        write("Checking permission...");
 
         const permission =
             await TS.location.getPermissionStatus();
 
-        print("Permission",permission);
+        inspect("Permission Result",permission);
 
-        const result = await TS.location.getCurrentPosition();
-        
-        print(result);
-        print(typeof result);
-        print(result.ok);
-        print(result.data);
-        print(JSON.stringify(result, null, 2));
+        write("");
+        write("Getting current position...");
 
-    }catch(e){
-        log(e.toString());
+        const position =
+            await TS.location.getCurrentPosition();
+
+        inspect("Position Result",position);
+
+    }
+    catch(e){
+
+        divider("TS Exception");
+
+        inspect("Exception",e);
+
     }
 
-};
+}
 
-//--------------------------------------------------
-// Browser API
-//--------------------------------------------------
+function testNavigator(){
 
-document.getElementById("jsBtn").onclick = ()=>{
+    divider("Testing navigator.geolocation");
 
-    log("Calling navigator.geolocation...");
+    write("navigator.geolocation exists: " + (!!navigator.geolocation));
 
     if(!navigator.geolocation){
-        log("navigator.geolocation NOT supported.");
+        write("Browser Geolocation API NOT available.");
         return;
     }
 
     navigator.geolocation.getCurrentPosition(
 
-        position=>{
+        function(position){
 
-            print("Navigator Position",{
+            inspect("Navigator Position",{
 
                 latitude:position.coords.latitude,
                 longitude:position.coords.longitude,
                 accuracy:position.coords.accuracy,
                 altitude:position.coords.altitude,
+                altitudeAccuracy:position.coords.altitudeAccuracy,
                 speed:position.coords.speed,
                 heading:position.coords.heading,
                 timestamp:position.timestamp
@@ -122,9 +172,9 @@ document.getElementById("jsBtn").onclick = ()=>{
 
         },
 
-        error=>{
+        function(error){
 
-            print("Navigator Error",{
+            inspect("Navigator Error",{
 
                 code:error.code,
                 message:error.message
@@ -143,11 +193,7 @@ document.getElementById("jsBtn").onclick = ()=>{
 
     );
 
-};
-
-document.getElementById("clearBtn").onclick=()=>{
-    output.textContent="";
-};
+}
 
 </script>
 
