@@ -1,6 +1,6 @@
 {
-  "id": "com.example.securetest",
-  "name": "Secure Storage Test",
+  "id": "com.example.filestest",
+  "name": "Files Test",
   "version": "1.0.0",
   "entry": { "html": "index.html" },
   "permissions": []
