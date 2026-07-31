@@ -1,8 +1,7 @@
 {
-  "id": "ai.geoloc.firsttest",
-  "name": "GPS Test",
-  "version": "69.6.9",
+  "id": "com.example.cameratest",
+  "name": "Camera Test",
+  "version": "1.0.0",
   "entry": { "html": "index.html" },
-  "permissions": ["network", "location"],
-  "network": { "allowedDomains": ["api.github.com"] }
+  "permissions": ["camera"]
 }
