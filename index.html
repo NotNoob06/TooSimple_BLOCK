@@ -1,17 +1,21 @@
 <!DOCTYPE html>
 <html>
 <body style="font-family:sans-serif;padding:24px;">
-  <button id="btn">Get Location</button>
+  <button id="capBtn">Take Photo</button>
+  <button id="pickBtn">Pick From Gallery</button>
   <p id="result">-</p>
   <script>
-    document.getElementById('btn').addEventListener('click', async () => {
+    async function run(fn) {
       try {
-        const pos = await TS.location.getCurrentPosition();
-        document.getElementById('result').textContent = pos.latitude + ', ' + pos.longitude;
+        const img = await fn();
+        document.getElementById('result').textContent =
+          img.name + ' — ' + img.width + 'x' + img.height + ' (' + img.size + ' bytes)';
       } catch (e) {
         document.getElementById('result').textContent = 'Error: ' + e.message;
       }
-    });
+    }
+    document.getElementById('capBtn').addEventListener('click', () => run(() => TS.camera.capture()));
+    document.getElementById('pickBtn').addEventListener('click', () => run(() => TS.camera.pick()));
   </script>
 </body>
 </html>
