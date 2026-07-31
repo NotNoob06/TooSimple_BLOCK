@@ -1,17 +1,26 @@
 <!DOCTYPE html>
 <html>
 <body style="font-family:sans-serif;padding:24px;">
-  <button id="saveBtn">Save secret</button>
-  <button id="loadBtn">Load secret</button>
-  <p id="result">-</p>
+  <button id="writeBtn">Write file</button>
+  <button id="readBtn">Read file</button>
+  <button id="listBtn">List files</button>
+  <pre id="result">-</pre>
   <script>
-    document.getElementById('saveBtn').addEventListener('click', async () => {
-      await TS.secureStorage.set('apiKey', 'sk-test-12345');
-      document.getElementById('result').textContent = 'Saved.';
+    document.getElementById('writeBtn').addEventListener('click', async () => {
+      await TS.files.write('notes/today.txt', 'Hello from TS.files at ' + new Date().toISOString());
+      document.getElementById('result').textContent = 'Written.';
     });
-    document.getElementById('loadBtn').addEventListener('click', async () => {
-      const value = await TS.secureStorage.get('apiKey');
-      document.getElementById('result').textContent = 'Loaded: ' + value;
+    document.getElementById('readBtn').addEventListener('click', async () => {
+      try {
+        const content = await TS.files.read('notes/today.txt');
+        document.getElementById('result').textContent = content;
+      } catch (e) {
+        document.getElementById('result').textContent = 'Error: ' + e.message;
+      }
+    });
+    document.getElementById('listBtn').addEventListener('click', async () => {
+      const entries = await TS.files.list('notes');
+      document.getElementById('result').textContent = JSON.stringify(entries, null, 2);
     });
   </script>
 </body>
