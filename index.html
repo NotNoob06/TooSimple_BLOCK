@@ -1,21 +1,18 @@
 <!DOCTYPE html>
 <html>
 <body style="font-family:sans-serif;padding:24px;">
-  <button id="capBtn">Take Photo</button>
-  <button id="pickBtn">Pick From Gallery</button>
+  <button id="saveBtn">Save secret</button>
+  <button id="loadBtn">Load secret</button>
   <p id="result">-</p>
   <script>
-    async function run(fn) {
-      try {
-        const img = await fn();
-        document.getElementById('result').textContent =
-          img.name + ' — ' + img.width + 'x' + img.height + ' (' + img.size + ' bytes)';
-      } catch (e) {
-        document.getElementById('result').textContent = 'Error: ' + e.message;
-      }
-    }
-    document.getElementById('capBtn').addEventListener('click', () => run(() => TS.camera.capture()));
-    document.getElementById('pickBtn').addEventListener('click', () => run(() => TS.camera.pick()));
+    document.getElementById('saveBtn').addEventListener('click', async () => {
+      await TS.secureStorage.set('apiKey', 'sk-test-12345');
+      document.getElementById('result').textContent = 'Saved.';
+    });
+    document.getElementById('loadBtn').addEventListener('click', async () => {
+      const value = await TS.secureStorage.get('apiKey');
+      document.getElementById('result').textContent = 'Loaded: ' + value;
+    });
   </script>
 </body>
 </html>
