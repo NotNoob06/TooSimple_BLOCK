@@ -1,7 +1,7 @@
 {
-  "id": "com.example.cameratest",
-  "name": "Camera Test",
+  "id": "com.example.securetest",
+  "name": "Secure Storage Test",
   "version": "1.0.0",
   "entry": { "html": "index.html" },
-  "permissions": ["camera"]
+  "permissions": []
 }
