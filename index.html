@@ -1,27 +1,15 @@
-<!DOCTYPE html>
-<html>
-<body style="font-family:sans-serif;padding:24px;">
-  <button id="writeBtn">Write file</button>
-  <button id="readBtn">Read file</button>
-  <button id="listBtn">List files</button>
-  <pre id="result">-</pre>
-  <script>
-    document.getElementById('writeBtn').addEventListener('click', async () => {
-      await TS.files.write('notes/today.txt', 'Hello from TS.files at ' + new Date().toISOString());
-      document.getElementById('result').textContent = 'Written.';
-    });
-    document.getElementById('readBtn').addEventListener('click', async () => {
-      try {
-        const content = await TS.files.read('notes/today.txt');
-        document.getElementById('result').textContent = content;
-      } catch (e) {
-        document.getElementById('result').textContent = 'Error: ' + e.message;
-      }
-    });
-    document.getElementById('listBtn').addEventListener('click', async () => {
-      const entries = await TS.files.list('notes');
-      document.getElementById('result').textContent = JSON.stringify(entries, null, 2);
-    });
-  </script>
-</body>
-</html>
+<!DOCTYPE html><html><body style="font-family:sans-serif;padding:24px;">
+<button id="copyBtn">Copy text</button>
+<button id="shareBtn">Share text</button>
+<p id="result">-</p>
+<script>
+  document.getElementById('copyBtn').addEventListener('click', async () => {
+    await TS.clipboard.write('Hello from TooSimple');
+    const text = await TS.clipboard.read();
+    document.getElementById('result').textContent = 'Clipboard: ' + text;
+  });
+  document.getElementById('shareBtn').addEventListener('click', async () => {
+    await TS.share.shareText('Check out this Block!');
+  });
+</script>
+</body></html>
