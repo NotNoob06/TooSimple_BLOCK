@@ -1,2 +1,2 @@
-{ "id": "com.example.sharetest", "name": "Share Test", "version": "1.0.0",
-  "entry": { "html": "index.html" }, "permissions": ["clipboard"] }
+{ "id": "com.example.dialogtest", "name": "Dialog Test", "version": "1.0.0",
+  "entry": { "html": "index.html" }, "permissions": [] }
