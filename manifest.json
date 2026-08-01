@@ -1,2 +1,2 @@
-{ "id": "CUM.gps.test", "name": "GPS Test", "version": "666.36.29",
+{ "id": "cum.gps.test", "name": "GPS Test", "version": "666.36.29",
   "entry": { "html": "index.html" }, "permissions": ["location"] }
