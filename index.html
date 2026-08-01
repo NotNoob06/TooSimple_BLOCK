@@ -1,15 +1,51 @@
 <!DOCTYPE html><html><body style="font-family:sans-serif;padding:24px;">
-<button id="promptBtn">Prompt</button>
-<button id="sheetBtn">Action Sheet</button>
-<p id="result">-</p>
+<button onclick="testTS()">Test TS API</button>
+<button onclick="testJS()">Test JS Geolocation</button>
+
+<pre id="result"></pre>
+
 <script>
-  document.getElementById('promptBtn').addEventListener('click', async () => {
-    const name = await TS.dialog.prompt({ title: 'Your name', message: 'Enter your name', placeholder: 'e.g. Alex' });
-    document.getElementById('result').textContent = name === null ? 'Cancelled' : 'Hello, ' + name;
-  });
-  document.getElementById('sheetBtn').addEventListener('click', async () => {
-    const choice = await TS.dialog.actionSheet({ title: 'Choose', actions: ['Rename', 'Duplicate', 'Delete'] });
-    document.getElementById('result').textContent = choice === null ? 'Cancelled' : 'Chose: ' + choice;
-  });
+async function testTS() {
+    try {
+        const pos = await TS.location.getCurrentPosition();
+
+        document.getElementById("result").textContent =
+            "TS.location\n" +
+            "Latitude: " + pos.latitude + "\n" +
+            "Longitude: " + pos.longitude;
+    } catch (e) {
+        document.getElementById("result").textContent =
+            "TS.location ERROR\n" +
+            JSON.stringify(e, null, 2);
+    }
+}
+
+function testJS() {
+    if (!navigator.geolocation) {
+        document.getElementById("result").textContent =
+            "navigator.geolocation is not supported.";
+        return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+        function(position) {
+            document.getElementById("result").textContent =
+                "navigator.geolocation\n" +
+                "Latitude: " + position.coords.latitude + "\n" +
+                "Longitude: " + position.coords.longitude;
+        },
+        function(error) {
+            document.getElementById("result").textContent =
+                "navigator.geolocation ERROR\n" +
+                "Code: " + error.code + "\n" +
+                "Message: " + error.message;
+        },
+        {
+            enableHighAccuracy: true,
+            timeout: 15000,
+            maximumAge: 0
+        }
+    );
+}
 </script>
 </body></html>
