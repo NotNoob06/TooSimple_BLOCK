@@ -1,15 +1,15 @@
 <!DOCTYPE html><html><body style="font-family:sans-serif;padding:24px;">
-<button id="copyBtn">Copy text</button>
-<button id="shareBtn">Share text</button>
+<button id="promptBtn">Prompt</button>
+<button id="sheetBtn">Action Sheet</button>
 <p id="result">-</p>
 <script>
-  document.getElementById('copyBtn').addEventListener('click', async () => {
-    await TS.clipboard.write('Hello from TooSimple');
-    const text = await TS.clipboard.read();
-    document.getElementById('result').textContent = 'Clipboard: ' + text;
+  document.getElementById('promptBtn').addEventListener('click', async () => {
+    const name = await TS.dialog.prompt({ title: 'Your name', message: 'Enter your name', placeholder: 'e.g. Alex' });
+    document.getElementById('result').textContent = name === null ? 'Cancelled' : 'Hello, ' + name;
   });
-  document.getElementById('shareBtn').addEventListener('click', async () => {
-    await TS.share.shareText('Check out this Block!');
+  document.getElementById('sheetBtn').addEventListener('click', async () => {
+    const choice = await TS.dialog.actionSheet({ title: 'Choose', actions: ['Rename', 'Duplicate', 'Delete'] });
+    document.getElementById('result').textContent = choice === null ? 'Cancelled' : 'Chose: ' + choice;
   });
 </script>
 </body></html>
