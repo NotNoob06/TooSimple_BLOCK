@@ -1,7 +1,2 @@
-{
-  "id": "com.example.filestest",
-  "name": "Files Test",
-  "version": "1.0.0",
-  "entry": { "html": "index.html" },
-  "permissions": []
-}
+{ "id": "com.example.sharetest", "name": "Share Test", "version": "1.0.0",
+  "entry": { "html": "index.html" }, "permissions": ["clipboard"] }
