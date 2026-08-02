@@ -1,2 +1,2 @@
-{ "id": "com.example.lifecycletest", "name": "Lifecycle Test", "version": "1.0.0",
+{ "id": "com.example.lifecycletest", "name": "Lifecycle Test", "version": "1.0.1",
   "entry": { "html": "index.html" }, "permissions": [] }
