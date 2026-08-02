@@ -4,7 +4,7 @@
   window.addEventListener('ts-ready', () => {
     TS.lifecycle.onStart(() => { document.getElementById('log').textContent = 'onStart fired'; });
     TS.lifecycle.onStop(() => { document.title = 'stopped'; }); // check via Developer console/logcat, not visible on screen since it's about to close
-  }
+  })
                           
 </script>
 </body></html>
