@@ -1,10 +1,12 @@
 <!DOCTYPE html><html><body style="font-family:sans-serif;padding:24px;">
-<p id="log">Waiting...</p>
+<button id="btn">Send Notification</button>
 <script>
-  window.addEventListener('ts-ready', () => {
-    TS.lifecycle.onStart(() => { document.getElementById('log').textContent = 'onStart fired'; });
-    TS.lifecycle.onStop(() => { document.title = 'stopped'; }); // check via Developer console/logcat, not visible on screen since it's about to close
-  })
-                          
+  document.getElementById('btn').addEventListener('click', async () => {
+    try {
+      await TS.notification.show({ title: 'Hello', body: 'This came from a Block.' });
+    } catch (e) {
+      document.body.innerHTML += '<p>Error: ' + e.message + '</p>';
+    }
+  });
 </script>
 </body></html>
