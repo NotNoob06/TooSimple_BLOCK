@@ -1,2 +1,2 @@
-{ "id": "com.example.lifecycletest", "name": "Lifecycle Test", "version": "1.1.1",
-  "entry": { "html": "index.html" }, "permissions": [] }
+{ "id": "com.example.notiftest", "name": "Notification Test", "version": "1.0.0",
+  "entry": { "html": "index.html" }, "permissions": ["notifications"] }
